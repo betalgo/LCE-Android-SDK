@@ -1,0 +1,5 @@
+<resources>
+    <string name="body_content_truncated">\n\n--- Content truncated ---</string>
+    <string name="body_omitted">(encoded or binary body omitted)</string>
+    <string name="body_unexpected_eof">\n\n--- Unexpected end of content ---</string>
+</resources>
