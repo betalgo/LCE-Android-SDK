@@ -27,5 +27,11 @@ interface RestDao {
     @Query("update transactions set lastUploadedTime =:uploadTime where transactionId=:transactionId")
     fun updateUploadTime(transactionId: String, uploadTime: Long)
 
+    @Delete
+    fun delete(transaction: HttpTransaction)
+
+    @Query("delete from transactions where lastUploadedTime >= lastUpdatedTime")
+    fun cleanOlder()
+
 
 }

@@ -31,6 +31,7 @@ object UploadHelper: KoinComponent {
     fun init() {
         isRequesting.set(true)
         postDeviceInfo()
+        DbHelper.clean()
 
         scope.launch(Dispatchers.Main) {
             DbHelper.observePendingTransactions().observeForever { transactions ->
@@ -91,7 +92,11 @@ object UploadHelper: KoinComponent {
             )
             api.postApi(request).await()
             runSync {
-                DbHelper.updateUploadTime(transaction.transactionId, uploadTime)
+                if (transaction.isRequest && transaction.error == null) {
+                    DbHelper.updateUploadTime(transaction.transactionId, uploadTime)
+                } else {
+                    DbHelper.delete(transaction)
+                }
                 upload()
             }
         })

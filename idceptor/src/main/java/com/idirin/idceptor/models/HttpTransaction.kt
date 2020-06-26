@@ -206,7 +206,7 @@ class HttpTransaction(
 
 
 val HttpTransaction.isRequest: Boolean
-    get() = (tookMs == null && error == null)
+    get() = (tookMs == null || responseDate == null || responseCode == null)
 
 
 

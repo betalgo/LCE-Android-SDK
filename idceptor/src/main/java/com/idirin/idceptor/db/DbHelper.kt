@@ -42,4 +42,12 @@ object DbHelper: KoinComponent {
         restDao.updateUploadTime(transactionId, uploadTime)
     }
 
+    fun delete(transaction: HttpTransaction) {
+        restDao.delete(transaction)
+    }
+
+    fun clean() {
+        restDao.cleanOlder()
+    }
+
 }
