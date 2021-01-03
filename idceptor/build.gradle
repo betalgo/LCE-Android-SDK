@@ -8,12 +8,12 @@ group='com.idirin.idceptor'
 version='0.0.1'
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.2"
+    compileSdkVersion 30
+    buildToolsVersion "30.0.2"
 
     defaultConfig {
         minSdkVersion 16
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode 1
         versionName "1.0"
 
@@ -32,6 +32,13 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            buildConfigField 'String', 'REST_ENDPOINT', '"https://data.lasercateyes.com/api/"'
+            buildConfigField 'String', 'CLIENT_ID', '"8D0B85DF-E212-4126-9C3A-AC4EEB98B0B1"'
+        }
+        debug {
+            buildConfigField 'String', 'REST_ENDPOINT', '"https://data-beta.lasercateyes.com/api/"'
+            buildConfigField 'String', 'CLIENT_ID', '"424F5699-9FBA-4161-AE79-49839455E04A"'
         }
     }
 
@@ -49,8 +56,8 @@ dependencies {
     kapt "androidx.room:room-compiler:2.2.5"
 
     //Koin
-    implementation "org.koin:koin-core:2.0.1"
-    implementation "org.koin:koin-android:2.0.1"
+    implementation "org.koin:koin-core:2.1.1"
+    implementation "org.koin:koin-android:2.1.1"
 
     //Interceptor
     implementation "com.squareup.okhttp3:okhttp:3.11.0"

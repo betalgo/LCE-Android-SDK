@@ -1,14 +1,13 @@
 package com.idirin.idceptor.network
 
-import com.google.gson.Gson
+import android.app.Application
+import android.os.Build
 import com.idirin.idceptor.db.DbHelper
 import com.idirin.idceptor.models.HttpTransaction
 import com.idirin.idceptor.models.isRequest
-import com.idirin.idceptor.models.network.PostApiRequest
-import com.idirin.idceptor.models.network.RequestPackageModel
-import com.idirin.idceptor.models.network.ResponsePackageModel
-import com.idirin.idceptor.utils.AppUtil
-import com.idirin.idceptor.utils.DeviceUtil
+import com.idirin.idceptor.models.network.*
+import com.idirin.idceptor.utils.*
+import com.idirin.idceptor.utils.AppUtil.getDeviceId
 import kotlinx.coroutines.*
 import org.koin.core.KoinComponent
 import org.koin.core.inject
@@ -18,19 +17,18 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 object UploadHelper: KoinComponent {
 
+    private val app: Application by inject()
     private val api: IdApiInterface by inject()
     private val scope: CoroutineScope by inject()
     private val syncThread: ExecutorCoroutineDispatcher by inject()
 
     private var isRequesting: AtomicBoolean = AtomicBoolean(true)
 
-    private val gson by lazy { Gson() }
-
     private const val RETRY_DELAY = 60_000L
 
     fun init() {
         isRequesting.set(true)
-        postDeviceInfo()
+        postAppInfo()
         DbHelper.clean()
 
         scope.launch(Dispatchers.Main) {
@@ -67,13 +65,11 @@ object UploadHelper: KoinComponent {
             val uploadTime = System.currentTimeMillis()
             val request = PostApiRequest(
                 connectionId = transaction.transactionId,
-                applicationId = AppUtil.appId,
-                deviceId = DeviceUtil.deviceId,
                 requestPackage = RequestPackageModel(
                     id = transaction.transactionId,
                     timeStamp = transaction.requestDate!!,
                     url = transaction.url!!,
-                    header = gson.toJson(transaction.getRequestHeaders()),
+                    headers = transaction.getRequestHeaders().map { "${it.name} -  ${it.value}" },
                     body = transaction.requestBody,
                     methodType = transaction.method!!
                 ),
@@ -85,7 +81,7 @@ object UploadHelper: KoinComponent {
                         id = transaction.transactionId,
                         timeStamp = transaction.responseDate!!,
                         statusCode = transaction.responseCode!!,
-                        header = gson.toJson(transaction.getResponseHeaders()),
+                        headers = transaction.getResponseHeaders().map { "${it.name} -  ${it.value}" },
                         body = transaction.responseBody
                     )
                 }
@@ -104,17 +100,24 @@ object UploadHelper: KoinComponent {
 
     private fun postAppInfo() {
         coroutine(async = {
-            // TODO post AppInfo
-            // api.postApi(request).await()
-            upload()
-        })
-    }
 
-    private fun postDeviceInfo() {
-        coroutine(async = {
-            // TODO post Device Info
-            // api.postApi(request).await()
-            postAppInfo()
+            val request = AppInitRequest(
+                    operatingSystem = "Android",
+                    name = "",
+                    environment = "",
+                    version = getVersionName(app),
+                    buildNumber = getVersionCode(app).toString(),
+                    device = DeviceModel(
+                            name = Build.MODEL,
+                            userFriendlyName = Build.PRODUCT,
+                            operatingSystem = "Android",
+                            uuid = getDeviceId(),
+                            osVersion = Build.VERSION.SDK_INT.toString()
+                    )
+            )
+
+            api.initApp(request).await()
+            upload()
         })
     }
 

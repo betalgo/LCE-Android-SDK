@@ -15,10 +15,7 @@ import okhttp3.internal.http.HttpHeaders
 import okio.Buffer
 import okio.BufferedSource
 import org.koin.android.ext.koin.androidContext
-import org.koin.core.context.GlobalContext
-import org.koin.core.context.loadKoinModules
-import org.koin.core.context.startKoin
-import org.koin.core.context.unloadKoinModules
+import org.koin.core.context.*
 import java.nio.charset.Charset
 import java.nio.charset.UnsupportedCharsetException
 import java.util.*
@@ -30,7 +27,7 @@ class IDCeptor(private val application: Application, apiKey: String): Intercepto
         IDCeptor.apiKey = apiKey
 
         val modules = listOf(idApiModule, idDbModule, idPrefModule, idConcurrencyModule)
-        if (GlobalContext.getOrNull() == null) {
+        if (KoinContextHandler.getOrNull() == null) {
             startKoin {
                 androidContext(application)
                 modules(modules)
@@ -44,24 +41,9 @@ class IDCeptor(private val application: Application, apiKey: String): Intercepto
     }
 
     companion object {
-        private val DEFAULT_RETENTION: Period = Period.ONE_WEEK
         private val UTF8 = Charset.forName("UTF-8")
 
         lateinit var apiKey: String
-
-        enum class Period {
-            /** Retain data for the last hour. */
-            ONE_HOUR,
-
-            /** Retain data for the last day. */
-            ONE_DAY,
-
-            /** Retain data for the last week. */
-            ONE_WEEK,
-
-            /** Retain data forever. */
-            FOREVER
-        }
     }
 
     private val maxContentLength = 250000L

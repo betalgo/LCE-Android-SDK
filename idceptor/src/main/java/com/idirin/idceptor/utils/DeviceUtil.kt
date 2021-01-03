@@ -23,9 +23,9 @@ object DeviceUtil: KoinComponent {
     val deviceId = sPref.getString(PREF_DEVICE_ID, null) ?: UUID.randomUUID().toString()
 
 
-    val userAgent: String
-        get() = ("Android/" + BuildConfig.APPLICATION_ID + "/" + BuildConfig.VERSION_CODE + "/("
-                + Build.MANUFACTURER + ":" + Build.VERSION.RELEASE + ":" + Build.MODEL + ")")
+//    val userAgent: String
+//        get() = ("Android/" + BuildConfig.APPLICATION_ID + "/" + BuildConfig.VERSION_CODE + "/("
+//                + Build.MANUFACTURER + ":" + Build.VERSION.RELEASE + ":" + Build.MODEL + ")")
 
     fun bytesToHuman(size: Long): String {
         val Kb: Long = 1024
